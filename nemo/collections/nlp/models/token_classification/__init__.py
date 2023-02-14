@@ -14,7 +14,7 @@
 from nemo.collections.nlp.models.token_classification.punctuation_capitalization_config import (
     PunctuationCapitalizationModelConfig,
 )
-# from nemo.collections.nlp.models.token_classification.punctuation_capitalization_lexical_audio_model import (
+# from nemo.collections.nlp.models.token_classification.punctuation_capimport torchaudioitalization_lexical_audio_model import (
 #     PunctuationCapitalizationLexicalAudioModel,
 # )
 from nemo.collections.nlp.models.token_classification.punctuation_capitalization_model import (

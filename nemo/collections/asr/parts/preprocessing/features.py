@@ -49,7 +49,7 @@ try:
     import torchaudio
 
     HAVE_TORCHAUDIO = True
-except ModuleNotFoundError:
+except: #ModuleNotFoundError:
     HAVE_TORCHAUDIO = False
 
 
