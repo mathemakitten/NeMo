@@ -14,10 +14,10 @@
 from nemo.collections.nlp.models.token_classification.punctuation_capitalization_config import (
     PunctuationCapitalizationModelConfig,
 )
-from nemo.collections.nlp.models.token_classification.punctuation_capitalization_lexical_audio_model import (
-    PunctuationCapitalizationLexicalAudioModel,
-)
+# from nemo.collections.nlp.models.token_classification.punctuation_capitalization_lexical_audio_model import (
+#     PunctuationCapitalizationLexicalAudioModel,
+# )
 from nemo.collections.nlp.models.token_classification.punctuation_capitalization_model import (
     PunctuationCapitalizationModel,
 )
-from nemo.collections.nlp.models.token_classification.token_classification_model import TokenClassificationModel
+# from nemo.collections.nlp.models.token_classification.token_classification_model import TokenClassificationModel
