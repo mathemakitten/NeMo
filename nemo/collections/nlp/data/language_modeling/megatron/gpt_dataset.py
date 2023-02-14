@@ -78,6 +78,11 @@ def build_dataset(cfg, trainer, data_prefix, data_impl, num_samples, seq_length,
             datasets.append(dataset)
         return BlendableDataset(datasets, weights, num_samples)
 
+# def build_train_valid_test_datasets():
+#     train_iter = get_dataset_fn(train_dataset_cfg, ds_shard_id, num_ds_shards,
+#                                 model.FEATURE_CONVERTER_CLS)
+#     return train_ds, validation_ds, test_ds
+#
 
 def build_train_valid_test_datasets(
     cfg,
