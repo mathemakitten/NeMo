@@ -32,7 +32,7 @@ from nemo.utils.exp_manager import exp_manager
 
 @hydra_runner(config_path="conf", config_name="megatron_gpt_config")
 def main(cfg) -> None:
-    logging.info("\n\n************** Experiment configuration ***********")
+    logging.info("\n\n************** Experiment configuration | TEST ***********")
     logging.info(f'\n{OmegaConf.to_yaml(cfg)}')
 
     megatron_amp_o2 = cfg.model.get('megatron_amp_O2', False)
