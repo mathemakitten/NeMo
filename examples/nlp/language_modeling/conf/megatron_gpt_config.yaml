@@ -2,10 +2,10 @@ name: megatron_gpt
 restore_from_path: null # used when starting from a .nemo file
 
 trainer:
-  devices: -1
+  devices: 1
   num_nodes: 1
   accelerator: gpu
-  precision: bf16
+  precision: 16
   logger: False # logger provided by exp_manager
   enable_checkpointing: False
   replace_sampler_ddp: False
@@ -75,8 +75,8 @@ model:
     library: 'megatron'
     type: 'GPT2BPETokenizer'
     model: null
-    vocab_file: '/fsx/helen/nemo_deleteme/vocab.json'
-    merge_file: '/fsx/helen/nemo_deleteme/merges.txt'
+    vocab_file: null
+    merge_file: null 
     delimiter: null # only used for tabular tokenizer
     sentencepiece_legacy: False # Legacy=True allows you to add special tokens to sentencepiece tokenizers.
 
@@ -166,9 +166,7 @@ model:
     # Dictionary: can override from CLI "model.data.data_prefix"={"train":[1.0, /path/to/data], "validation":/path/to/data, "test":/path/to/test}
     # Or see example below:
     # "model.data.data_prefix: {train:[1.0,/path/to/data], validation:[/path/to/data], test:[/path/to/test]}"
-    data_prefix:
-      - 1
-      - /fsx/helen/oscar/oscar-dedup-25_text_document
+    data_prefix: ???
     index_mapping_dir: null # path to save index mapping .npy files, by default will save in the same location as data_prefix
     data_impl: mmap
     splits_string: 900,50,50
