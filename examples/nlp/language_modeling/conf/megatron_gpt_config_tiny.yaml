@@ -17,12 +17,12 @@ trainer:
   limit_test_batches: 500
   accumulate_grad_batches: 1 # do not modify, grad acc is automatic for training megatron models
   gradient_clip_val: 1.0
-  benchmark: True #False
+  benchmark: False
   enable_model_summary: False # default PTL callback for this does not support model parallelism, instead we log manually
 
 exp_manager:
   explicit_log_dir: null
-  exp_dir: null
+  exp_dir: '/admin/home/helen/nemo/nemo_experiments/megatron_gpt_124m'
   name: megatron_gpt_124m
   create_wandb_logger: False
   wandb_logger_kwargs:
