@@ -14,7 +14,6 @@
 
 import itertools
 from typing import Any, List
-import time
 
 import torch
 from omegaconf import OmegaConf
@@ -297,11 +296,8 @@ class MegatronT5PromptLearningModel(MegatronBasePromptLearningModel):
 
     def training_step(self, batch, batch_idx):
         self._optimizer.zero_grad()
-        start_time = time.time()
         loss_mean = self.fwd_bwd_step(batch, batch_idx, forward_only=False)
         self.allreduce_gradients()
-        time_taken_per_batch = time.time() - start_time
-        tokens_processed = 160 * 1024  # global batch size * token length
 
         ## logging
         # we can only log on one rank if it is rank zero so we broadcast from last rank
@@ -313,7 +309,6 @@ class MegatronT5PromptLearningModel(MegatronBasePromptLearningModel):
             if loss_scale is not None:
                 self.log('loss_scale', loss_scale)
 
-        self.log("Tokens per second", {tokens_processed / time_taken_per_batch}, prog_bar=True, rank_zero_only=True)
         self.log('reduced_train_loss', loss_mean, prog_bar=True, rank_zero_only=True)
         lr = self._optimizer.param_groups[0]['lr']
         self.log('lr', lr, rank_zero_only=True)
