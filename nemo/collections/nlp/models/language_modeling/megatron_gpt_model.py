@@ -324,7 +324,7 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
             ),
         )
         time_taken_per_batch = time.time() - start_time
-        tokens_processed = 160 * 1024  # global batch size * token length
+        tokens_processed = 48 * 2048  # global batch size * token length
         self.log('tokens_per_second', tokens_processed / time_taken_per_batch, prog_bar=True, rank_zero_only=True)
 
         # only the last stages of the pipeline return losses
