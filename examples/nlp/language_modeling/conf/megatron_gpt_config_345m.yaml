@@ -52,7 +52,7 @@ model:
   virtual_pipeline_model_parallel_size: null # interleaved pipeline
 
   # model architecture
-  encoder_seq_length: 1024
+  encoder_seq_length: 2048 #1024
   max_position_embeddings: ${.encoder_seq_length}
   num_layers: 24
   hidden_size: 1024
