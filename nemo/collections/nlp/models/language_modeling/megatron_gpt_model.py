@@ -355,7 +355,7 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
             self.allreduce_first_last_embeddings()
 
         time_taken_per_batch = time.time() - start_time
-        tokens_processed = 144 * 2048  # global batch size * token length
+        tokens_processed = 6048 * 2048  # global batch size * token length
         self.log('tokens_per_second', tokens_processed / time_taken_per_batch, prog_bar=True, rank_zero_only=True)
 
         ## logging
