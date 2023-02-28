@@ -323,9 +323,6 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
                 'num_micro_batches_with_partial_activation_checkpoints', None
             ),
         )
-        time_taken_per_batch = time.time() - start_time
-        tokens_processed = 96 * 2048  # global batch size * token length
-        self.log('tokens_per_second', tokens_processed / time_taken_per_batch, prog_bar=True, rank_zero_only=True)
 
         # only the last stages of the pipeline return losses
         if losses_reduced_per_micro_batch:
@@ -356,6 +353,10 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
         if self.cfg.get('pipeline_model_parallel_size', 1) > 1:
             # when using pipeline parallelism the first and last stage must keep embeddings in sync
             self.allreduce_first_last_embeddings()
+
+        time_taken_per_batch = time.time() - start_time
+        tokens_processed = 96 * 2048  # global batch size * token length
+        self.log('tokens_per_second', tokens_processed / time_taken_per_batch, prog_bar=True, rank_zero_only=True)
 
         ## logging
         # we can only log on one rank if it is rank zero so we broadcast from last rank
