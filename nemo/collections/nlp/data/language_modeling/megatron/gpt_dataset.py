@@ -377,6 +377,15 @@ class GPTDataset(Dataset):
             )
         return sample.astype(np.int64)
 
+    """
+    ^MSanity Checking DataLoader 0:  50%|█████     | 1/2 [00:43<00:43, 43.35s/it]^MSanity Checking DataLoader 0: 100%|██████████| 2/2 [00:48<00:00, 24.22s/it]^M                                                                           ^M^MTraining: 0it [00:00, ?it/s]^MTraining:   0%|          | 0/151500 [00:00<?, ?it/s]^MEpoch 0:   0%|          | 0/151500 [00:00<?, ?it/s] [NeMo I 2023-02-28 07:01:16 gpt_dataset:371]  > WARNING: Got sample of length: 1806 for sequence length=2049, padding the sample to match sequence length
+[NeMo I 2023-02-28 07:01:17 gpt_dataset:371]  > WARNING: Got sample of length: 1842 for sequence length=2049, padding the sample to match sequence length
+Error executing job with overrides: []
+Traceback (most recent call last):
+  File "examples/nlp/language_modeling/megatron_gpt_pretraining.py", line 83, in main
+    trainer.fit(model)
+    """
+
     def __getitem__(self, idx):
         text = torch.from_numpy(self._get_text(idx))
         if self.add_extra_token:
