@@ -48,7 +48,7 @@ model:
   micro_batch_size: 1 # limited by GPU memory
   global_batch_size: 16 #48 #320 # will use more micro batches to reach global batch size
   tensor_model_parallel_size: 2 # intra-layer model parallelism
-  pipeline_model_parallel_size: 1 # inter-layer model parallelism
+  pipeline_model_parallel_size: 2 # inter-layer model parallelism
   virtual_pipeline_model_parallel_size: null # interleaved pipeline
 
   # model architecture
