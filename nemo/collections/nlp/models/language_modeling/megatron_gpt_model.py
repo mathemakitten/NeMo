@@ -356,7 +356,7 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
 
         time_taken_per_batch = time.time() - start_time
         # print(f"Time taken per batch: {time_taken_per_batch}")
-        tokens_processed = 32 * 2048  # global batch size * token length
+        tokens_processed = 24 * 2048  # global batch size * token length
         # print(f"Tokens processed: {tokens_processed}")
         self.log('tokens_per_second', tokens_processed / time_taken_per_batch, prog_bar=True, rank_zero_only=True)
 
