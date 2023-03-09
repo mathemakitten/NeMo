@@ -49,7 +49,7 @@ model:
   global_batch_size: 64 #96 #128 #64 #48 #320 # will use more micro batches to reach global batch size
   tensor_model_parallel_size: 8 # intra-layer model parallelism
   pipeline_model_parallel_size: 4 # inter-layer model parallelism
-  virtual_pipeline_model_parallel_size: 2 #null # interleaved pipeline
+  virtual_pipeline_model_parallel_size: null #null # interleaved pipeline
 
   # model architecture
   encoder_seq_length: 2048 #1024
@@ -89,7 +89,7 @@ model:
   fp16_lm_cross_entropy: False # Move the cross entropy unreduced loss calculation for lm head to fp16
 
   # Megatron O2-style half-precision
-  megatron_amp_O2: True # Enable O2-level automatic mixed precision using main parameters
+  megatron_amp_O2: False # Enable O2-level automatic mixed precision using main parameters
   grad_allreduce_chunk_size_mb: 125
 
   # Fusion
@@ -140,7 +140,7 @@ model:
   ## Sequence Parallelism
   # Makes tensor parallelism more memory efficient for LLMs (20B+) by parallelizing layer norms and dropout sequentially
   # See Reducing Activation Recomputation in Large Transformer Models: https://arxiv.org/abs/2205.05198 for more details.
-  sequence_parallel: False
+  sequence_parallel: True #False
 
   ## Transformer Engine
   transformer_engine: False
