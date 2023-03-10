@@ -749,6 +749,7 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
         else:
             # TODO: consider adding a ModelPT guard to check if model is being restored.
             # allowing restored models to optionally setup datasets
+            # helen: this is where training data gets setup
             self.build_train_valid_test_datasets()
             self.setup_training_data(self.cfg.data)
             self.setup_validation_data(self.cfg.data)
