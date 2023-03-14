@@ -3,7 +3,7 @@ restore_from_path: null # used when starting from a .nemo file
 
 trainer:
   devices: -1
-  num_nodes: 64
+  num_nodes: 1
   accelerator: gpu
   precision: bf16
   logger: False # logger provided by exp_manager
@@ -22,7 +22,7 @@ trainer:
 
 exp_manager:
   explicit_log_dir: null
-  exp_dir: '/admin/home/helen/nemo/nemo_experiments/megatron_gpt_345m'
+  exp_dir: 's3://geclm-datasets/model_experiments/megatron_gpt_345m' #'/fsx/helen/nemo/nemo_experiments/megatron_gpt_345m'
   name: megatron_gpt_345m
   create_wandb_logger: False
   wandb_logger_kwargs:
@@ -45,8 +45,8 @@ model:
   # specify micro_batch_size, global_batch_size, and model parallelism
   # gradient accumulation will be done automatically based on data_parallel_size
   # global batch size must be divisible by micro batch size times data parallel size (128)
-  micro_batch_size: 6 # limited by GPU memory
-  global_batch_size: 3072 #48 #320 # will use more micro batches to reach global batch size
+  micro_batch_size: 1 #6 # limited by GPU memory
+  global_batch_size: 8 #3072 #48 #320 # will use more micro batches to reach global batch size
   tensor_model_parallel_size: 1 # intra-layer model parallelism
   pipeline_model_parallel_size: 1 # inter-layer model parallelism
   virtual_pipeline_model_parallel_size: null # interleaved pipeline
