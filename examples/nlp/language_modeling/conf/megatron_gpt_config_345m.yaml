@@ -22,7 +22,8 @@ trainer:
 
 exp_manager:
   explicit_log_dir: null
-  exp_dir: 's3://geclm-datasets/model_experiments/megatron_gpt_345m' #'/fsx/helen/nemo/nemo_experiments/megatron_gpt_345m'
+#  exp_dir: 's3://geclm-datasets/model_experiments/megatron_gpt_345m' #'/fsx/helen/nemo/nemo_experiments/megatron_gpt_345m'
+  exp_dir: '/fsx/helen/nemo/nemo_experiments/megatron_gpt_345m'
   name: megatron_gpt_345m
   create_wandb_logger: False
   wandb_logger_kwargs:
