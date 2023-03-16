@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import time
 import itertools
 from typing import Any, List, Optional, Union
 
@@ -305,6 +306,7 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
         # we do this inside training_step to support pipeline parallelism
         fwd_bwd_function = self._get_fwd_bwd_function()
 
+        start_time = time.time()
         losses_reduced_per_micro_batch = fwd_bwd_function(
             forward_step_func=self.get_forward_output_and_loss_func(),
             batch=batch_for_pipeline,
@@ -351,6 +353,13 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
         if self.cfg.get('pipeline_model_parallel_size', 1) > 1:
             # when using pipeline parallelism the first and last stage must keep embeddings in sync
             self.allreduce_first_last_embeddings()
+
+        time_taken_per_batch = time.time() - start_time
+        # print(f"Time taken per batch: {time_taken_per_batch}")
+        print("Using info from config for calculation")
+        tokens_processed = self.cfg.global_batch_size * self.cfg.encoder_seq_length  # global batch size * token length
+        # print(f"Tokens processed: {tokens_processed}")
+        self.log('tokens_per_second', tokens_processed / time_taken_per_batch, prog_bar=True, rank_zero_only=True)
 
         ## logging
         # we can only log on one rank if it is rank zero so we broadcast from last rank

@@ -2,14 +2,14 @@ name: megatron_gpt
 restore_from_path: null # used when starting from a .nemo file
 
 trainer:
-  devices: 1
-  num_nodes: 1
+  devices: -1
+  num_nodes: 64
   accelerator: gpu
-  precision: 16
+  precision: bf16
   logger: False # logger provided by exp_manager
   enable_checkpointing: False
   replace_sampler_ddp: False
-  max_epochs: -1 # PTL default. In practice, max_steps will be reached first. 
+  max_epochs: -1 # PTL default. In practice, max_steps will be reached first.
   max_steps: 100000 # consumed_samples = global_step * micro_batch_size * data_parallel_size * accumulate_grad_batches
   log_every_n_steps: 10
   val_check_interval: 100
@@ -44,19 +44,19 @@ exp_manager:
 model:
   # specify micro_batch_size, global_batch_size, and model parallelism
   # gradient accumulation will be done automatically based on data_parallel_size
-  micro_batch_size: 4 # limited by GPU memory
-  global_batch_size: 8 # will use more micro batches to reach global batch size
-  tensor_model_parallel_size: 1 # intra-layer model parallelism
-  pipeline_model_parallel_size: 1 # inter-layer model parallelism
+  micro_batch_size: 1 # limited by GPU memory
+  global_batch_size: 12 #120 # will use more micro batches to reach global batch size
+  tensor_model_parallel_size: 4 # intra-layer model parallelism
+  pipeline_model_parallel_size: 8 # inter-layer model parallelism
   virtual_pipeline_model_parallel_size: null # interleaved pipeline
 
   # model architecture
-  encoder_seq_length: 512
+  encoder_seq_length: 2048 #512
   max_position_embeddings: ${.encoder_seq_length}
-  num_layers: 12
-  hidden_size: 768
-  ffn_hidden_size: 3072 # Transformer FFN hidden size. Usually 4 * hidden_size.
-  num_attention_heads: 12
+  num_layers: 64 #12
+  hidden_size: 8192 #768
+  ffn_hidden_size: 32768 #3072 # Transformer FFN hidden size. Usually 4 * hidden_size.
+  num_attention_heads: 64 #12
   init_method_std: 0.02 # Standard deviation of the zero mean normal distribution used for weight initialization.')
   use_scaled_init_method: True # use scaled residuals initialization
   hidden_dropout: 0.1 # Dropout probability for hidden state transformer.
@@ -75,8 +75,8 @@ model:
     library: 'megatron'
     type: 'GPT2BPETokenizer'
     model: null
-    vocab_file: null
-    merge_file: null 
+    vocab_file: '/fsx/helen/nemo_deleteme/vocab.json'
+    merge_file: '/fsx/helen/nemo_deleteme/merges.txt'
     delimiter: null # only used for tabular tokenizer
     sentencepiece_legacy: False # Legacy=True allows you to add special tokens to sentencepiece tokenizers.
 
@@ -113,7 +113,7 @@ model:
   # These memory intensive activations are also less compute intensive which makes activation checkpointing more efficient for LLMs (20B+).
   # See Reducing Activation Recomputation in Large Transformer Models: https://arxiv.org/abs/2205.05198 for more details.
   # 'full' will checkpoint the entire transformer layer.
-  activations_checkpoint_granularity: null # 'selective' or 'full' 
+  activations_checkpoint_granularity: null # 'selective' or 'full'
   activations_checkpoint_method: null # 'uniform', 'block'
   # 'uniform' divides the total number of transformer layers and checkpoints the input activation
   # of each chunk at the specified granularity. When used with 'selective', 'uniform' checkpoints all attention blocks in the model.
@@ -144,9 +144,9 @@ model:
   ## Transformer Engine
   transformer_engine: False
   fp8: False # enables fp8 in TransformerLayer forward
-  fp8_e4m3: False # sets fp8_format = recipe.Format.E4M3 
+  fp8_e4m3: False # sets fp8_format = recipe.Format.E4M3
   fp8_hybrid: False # sets fp8_format = recipe.Format.HYBRID
-  fp8_margin: 0 # scaling margin 
+  fp8_margin: 0 # scaling margin
   fp8_interval: 1 # scaling update interval
   fp8_amax_history_len: 1 # Number of steps for which amax history is recorded per tensor
   fp8_amax_compute_algo: most_recent # 'most_recent' or 'max'. Algorithm for computing amax from history
@@ -157,8 +157,8 @@ model:
    # Path to data must be specified by the user.
     # Supports List, String and Dictionary
     # List : can override from the CLI: "model.data.data_prefix=[.5,/raid/data/pile/my-gpt3_00_text_document,.5,/raid/data/pile/my-gpt3_01_text_document]",
-    # Or see example below: 
-    # data_prefix: 
+    # Or see example below:
+    # data_prefix:
     #   - .5
     #   - /raid/data/pile/my-gpt3_00_text_document
     #   - .5
@@ -169,6 +169,7 @@ model:
     data_prefix:
       - 1
       - /fsx/helen/oscar/oscar-dedup-25_text_document
+#      - s3://geclm-datasets/helen/nemo_testdata/codeparrot_content_document
     index_mapping_dir: null # path to save index mapping .npy files, by default will save in the same location as data_prefix
     data_impl: mmap
     splits_string: 900,50,50
@@ -190,12 +191,12 @@ model:
     end_step: 10 # Global batch to end profiling
     ranks: [0] # Global rank IDs to profile
     gen_shape: False # Generate model and kernel details including input shapes
-  
+
   optim:
     name: fused_adam
     lr: 2e-4
-    weight_decay: 0.01 
-    betas: 
+    weight_decay: 0.01
+    betas:
     - 0.9
     - 0.98
     sched:
