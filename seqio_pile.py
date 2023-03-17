@@ -147,7 +147,8 @@ import tensorflow_datasets as tfds
 @seqio.map_over_dataset
 def read_and_parse(x):
     # print(f"what is x??? {x}")
-    return {'inputs': x['text'],
+    return {
+        # 'inputs': x['text'],
             'targets': x['text']
             }
 """
@@ -175,19 +176,21 @@ tensor([   0,    1,    2,  ..., 2045, 2046, 2047])
 @seqio.map_over_dataset
 def map_to_megatron(x):
     return {
-            'tokens': x['inputs'],
-            'targets': x['targets'],
-            # 'attention_mask': tf.concat([]),
-            'loss_mask': None,
-            'position_ids': None
+        'tokens': x['targets'][1:],
+        'targets': x['targets'][1:],
+            # 'tokens': x['decoder_input_tokens'][1:],
+            # 'targets': x['decoder_target_tokens'][2:],
+            # # 'attention_mask': tf.concat([]),
+            # 'loss_mask': x['decoder_loss_weights'][1:],
+            # 'position_ids': x['decoder_positions'][:-1]
             }
 
-# seqio.TaskRegistry.reset()
+seqio.TaskRegistry.reset()
 
 vocabulary = seqio.SentencePieceVocabulary(
     'gs://t5-data/vocabs/cc_all.32000/sentencepiece.model', extra_ids=100)
 output_features = {
-    'inputs': seqio.Feature(vocabulary=vocabulary),
+    # 'inputs': seqio.Feature(vocabulary=vocabulary),
     'targets': seqio.Feature(vocabulary=vocabulary)
 }
 
@@ -197,6 +200,7 @@ seqio.TaskRegistry.add("pile",
                        preprocessors=[ #functools.partial(translate, source_language='en', target_language='de')
                            functools.partial(read_and_parse),
                            seqio.preprocessors.tokenize,
+                           functools.partial(map_to_megatron),
                            # functools.partial(map_to_megatron)
                            # seqio.CacheDatasetPlaceholder(),
                            # seqio.preprocessors.append_eos
@@ -207,12 +211,24 @@ seqio.TaskRegistry.add("pile",
                         #    'targets': seqio.Feature(gpt2_encoder.GPT2Vocabulary(), add_eos=True, dtype=tf.int32)
                        # metric_fns=[metrics.bleu]  # TODO(helen): fix this.
                        )
-task = seqio.TaskRegistry.get('pile')
-ds = task.get_dataset(
-    sequence_length={"inputs": 2048, "targets": 2048},
+
+from seqio import dataset_providers
+TaskRegistry = dataset_providers.TaskRegistry
+import lm_feature_converter
+
+ds = dataset_providers.get_dataset(
+mixture_or_task_name="pile",
+    task_feature_lengths={
+        # "inputs": 2048,
+                          "targets": 2048},  # TODO this is a seqio quirk
+dataset_split="train",
     # sequence_length=None,
     #                   split="train",
-                      shuffle=False, use_cached=False)
+                      shuffle=False, use_cached=False,
+# feature_converter=seqio.LMFeatureConverter(pack=True)
+# feature_converter=seqio.DecoderFeatureConverter(pack=True)  # TODO HELEN: PACKIGN DOESNT SEEM TO WORK PROPERLY
+feature_converter=lm_feature_converter.LMFeatureConverter(pack=True)
+)
 
 
 data = iter(ds)

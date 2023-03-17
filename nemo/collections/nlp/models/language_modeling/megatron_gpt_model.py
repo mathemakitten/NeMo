@@ -672,16 +672,48 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
             tokenizer=self.tokenizer,
         )
 
+        # from seqio import dataset_providers
+        # TaskRegistry = dataset_providers.TaskRegistry
+        # import lm_feature_converter
+        #
+        # ds = dataset_providers.get_dataset(
+        #     mixture_or_task_name="pile",
+        #     task_feature_lengths={
+        #         # "inputs": 2048,
+        #         "targets": 2048},  # TODO this is a seqio quirk
+        #     dataset_split="train",
+        #     # sequence_length=None,
+        #     #                   split="train",
+        #     shuffle=False, use_cached=False,
+        #     # feature_converter=seqio.LMFeatureConverter(pack=True)
+        #     # feature_converter=seqio.DecoderFeatureConverter(pack=True)  # TODO HELEN: PACKIGN DOESNT SEEM TO WORK PROPERLY
+        #     feature_converter=lm_feature_converter.LMFeatureConverter(pack=True)
+        # )
+        #
+        # data = iter(ds)
+        #
+        # self._train_ds = data
+        # self._validation_ds = data
+        # self._test_ds = data
+
         print(dir(self.tokenizer))
-        print(self.tokenizer.ids_to_text([262,  6292, 19444, 290]))
+        # print(self.tokenizer.ids_to_text([262,  6292, 19444, 290]))
         print("THIS IS WHAT TRAINING DATA LOOKS LIKE")
-        print(self._train_ds)
-        print(len(self._train_ds))
+        # print(self._train_ds)
+        # print(len(self._train_ds))
         print(self._train_ds[0].keys())  # dict_keys(['tokens', 'labels', 'attention_mask', 'loss_mask', 'position_ids'])
         print(self._train_ds[0])
         for k in list(self._train_ds[0].keys()):
-            print(f"key: {k}")
+            print('\n\n')
+            print(f"key: {k} | shape: {self._train_ds[0][k].shape})")
             print(self._train_ds[0][k])
+
+        print("a bunch of examples")
+        for i in range(10):
+            print("\n\n====================================")
+            tokens = self._train_ds[i]
+            print(tokens)
+            print(self.tokenizer.ids_to_text(tokens['tokens']))
         """
         {'tokens': tensor([   13,  1081,   257,  ...,   262,  6292, 19444]), 'labels': tensor([ 1081,   257,  1152,  ...,  6292, 19444,   290]), 'attention_mask': tensor([[[False,  True,  True,  ...,  True,  True,  True],
          [False, False,  True,  ...,  True,  True,  True],
