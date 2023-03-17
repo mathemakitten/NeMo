@@ -31,7 +31,7 @@ from nemo.utils.exp_manager import exp_manager
 
 
 # @hydra_runner(config_path="conf", config_name="megatron_gpt_config_40b_64")
-@hydra_runner(config_path="conf", config_name="megatron_gpt_config_6b_sanity")
+@hydra_runner(config_path="conf", config_name="megatron_gpt_config_345m")
 def main(cfg) -> None:
     logging.info("\n\n************** Experiment configuration ***********")
     logging.info(f'\n{OmegaConf.to_yaml(cfg)}')
@@ -78,6 +78,8 @@ def main(cfg) -> None:
     # hydra interpolation does not work here as the interpolation key is lost when PTL saves hparams
     with open_dict(cfg):
         cfg.model.precision = cfg.trainer.precision
+
+    # seqio drop in
 
     model = MegatronGPTModel(cfg.model, trainer)
 

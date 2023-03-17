@@ -12,9 +12,9 @@ trainer:
   max_epochs: -1 # PTL default. In practice, max_steps will be reached first.
   max_steps: 150000 # consumed_samples = global_step * micro_batch_size * data_parallel_size * accumulate_grad_batches
   log_every_n_steps: 500
-  val_check_interval: 10000
+  val_check_interval: 10
   limit_val_batches: 50
-  limit_test_batches: 500
+  limit_test_batches: 50
   accumulate_grad_batches: 1 # do not modify, grad acc is automatic for training megatron models
   gradient_clip_val: 1.0
   benchmark: False
@@ -81,6 +81,17 @@ model:
     merge_file: '/fsx/helen/nemo_deleteme/merges.txt'
     delimiter: null # only used for tabular tokenizer
     sentencepiece_legacy: False # Legacy=True allows you to add special tokens to sentencepiece tokenizers.
+
+#  tokenizer:
+#    library: sentencepiece
+#    type: null
+#    model: nemo:ce65b6d8f4fb4975955e935db699cba3_t5_small_tokenizer.model
+#    vocab_file: null
+#    merge_file: null
+#    num_sentinel_tokens: 100
+#    sentencepiece_legacy: true
+#    add_sentinel_tokens_in_reverse_order: true
+#    add_sentinel_tokens_first: true
 
   # Mixed precision
   native_amp_init_scale: 4294967296 # 2 ** 32

@@ -658,6 +658,7 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
                 1
             ] = 1  # This is to make sure we only have one epoch on every validation iteration
 
+        # TODO HELEN: FUCKING REPLACE THIS
         self._train_ds, self._validation_ds, self._test_ds = build_train_valid_test_datasets(
             cfg=self.cfg,
             trainer=self.trainer,
@@ -670,6 +671,28 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
             skip_warmup=self.cfg.data.get('skip_warmup', True),
             tokenizer=self.tokenizer,
         )
+
+        print(dir(self.tokenizer))
+        print(self.tokenizer.ids_to_text([262,  6292, 19444, 290]))
+        print("THIS IS WHAT TRAINING DATA LOOKS LIKE")
+        print(self._train_ds)
+        print(len(self._train_ds))
+        print(self._train_ds[0].keys())  # dict_keys(['tokens', 'labels', 'attention_mask', 'loss_mask', 'position_ids'])
+        print(self._train_ds[0])
+        for k in list(self._train_ds[0].keys()):
+            print(f"key: {k}")
+            print(self._train_ds[0][k])
+        """
+        {'tokens': tensor([   13,  1081,   257,  ...,   262,  6292, 19444]), 'labels': tensor([ 1081,   257,  1152,  ...,  6292, 19444,   290]), 'attention_mask': tensor([[[False,  True,  True,  ...,  True,  True,  True],
+         [False, False,  True,  ...,  True,  True,  True],
+         [False, False, False,  ...,  True,  True,  True],
+         ...,
+         [False, False, False,  ..., False,  True,  True],
+         [False, False, False,  ..., False, False,  True],
+         [False, False, False,  ..., False, False, False]]]), 'loss_mask': tensor([1., 1., 1.,  ..., 1., 1., 1.]), 'position_ids': tensor([   0,    1,    2,  ..., 2045, 2046, 2047])}
+        """
+        exit()
+
         if self._train_ds is not None:
             logging.info(f'Length of train dataset: {len(self._train_ds)}')
         if self._validation_ds is not None:
