@@ -159,7 +159,7 @@ def main(cfg) -> None:
     assert (
         cfg.trainer.devices * cfg.trainer.num_nodes
         == cfg.tensor_model_parallel_size * cfg.pipeline_model_parallel_size
-    ), "devices * num_nodes should equal tensor_model_parallel_size * pipeline_model_parallel_size"
+    ), f"devices * num_nodes should equal tensor_model_parallel_size * pipeline_model_parallel_size, got cfg.trainer.devices: {cfg.trainer.devices} cfg.trainer.num_nodes: {cfg.trainer.num_nodes} cfg.tensor_model_parallel_size: {cfg.tensor_model_parallel_size} cfg.pipeline_model_parallel_size: {cfg.pipeline_model_parallel_size}"
 
     if cfg.gpt_model_file:
         save_restore_connector = NLPSaveRestoreConnector()
