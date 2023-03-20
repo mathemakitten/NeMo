@@ -6,17 +6,12 @@ import jsonlines
 import seqio
 import tensorflow as tf
 import zstandard
-import tensorflow_io
-# from t5.evaluation import metrics
 
-# from  import GPT2Vocabulary
-# from t5x.data import gpt2_encoder
 
 _GCS_BUCKET = 's3://geclm-datasets/helen/'
 os.environ['TFDS_DATA_DIR'] = _GCS_BUCKET
 import tensorflow_datasets as tfds
 
-#from the_pile import tfds_pile
 
 try:
     import simdjson as json

@@ -96,111 +96,114 @@ def build_train_valid_test_datasets(
     skip_warmup,
     tokenizer,
 ):
-    if isinstance(data_prefix, DictConfig):
-        assert (
-            data_prefix.get('train') is not None
-            and data_prefix.get('test') is not None
-            and data_prefix.get('validation') is not None
-        ), f"Data prefix dictionary should have train, test and validation keys.  data_prefix currently has only {data_prefix.keys()}"
-        if cfg.data.splits_string is not None:
-            logging.warning(cfg.data.splits_string + " ignored since data prefix is of type dictionary.")
-        train_ds = build_dataset(
-            cfg,
-            trainer,
-            data_prefix["train"],
-            data_impl,
-            int(train_valid_test_num_samples[0]),
-            seq_length,
-            seed,
-            skip_warmup,
-            tokenizer,
-            "train",
-        )
-        validation_ds = build_dataset(
-            cfg,
-            trainer,
-            data_prefix["validation"],
-            data_impl,
-            int(train_valid_test_num_samples[1]),
-            seq_length,
-            seed,
-            skip_warmup,
-            tokenizer,
-            "valid",
-        )
-        test_ds = build_dataset(
-            cfg,
-            trainer,
-            data_prefix["test"],
-            data_impl,
-            int(train_valid_test_num_samples[2]),
-            seq_length,
-            seed,
-            skip_warmup,
-            tokenizer,
-            "test",
-        )
-        return train_ds, validation_ds, test_ds
+    # TODO HELEN FIX THIS, MAKE SEQIO DO THE BLENDING
+    return
 
-    else:
-        # Single dataset.
-        if len(data_prefix) == 1:
-            return _build_train_valid_test_datasets(
-                cfg,
-                trainer,
-                data_prefix[0],
-                data_impl,
-                splits_string,
-                train_valid_test_num_samples,
-                seq_length,
-                seed,
-                skip_warmup,
-                tokenizer,
-            )
-
-        # Blending dataset.
-        # Parse the values.
-        output = get_datasets_weights_and_num_samples(data_prefix, train_valid_test_num_samples)
-        prefixes, weights, datasets_train_valid_test_num_samples = output
-
-        # Build individual datasets.
-        train_datasets = []
-        valid_datasets = []
-        test_datasets = []
-        for i in range(len(prefixes)):
-            train_ds, valid_ds, test_ds = _build_train_valid_test_datasets(
-                cfg,
-                trainer,
-                prefixes[i],
-                data_impl,
-                splits_string,
-                datasets_train_valid_test_num_samples[i],
-                seq_length,
-                seed,
-                skip_warmup,
-                tokenizer,
-            )
-            if train_ds:
-                train_datasets.append(train_ds)
-            if valid_ds:
-                valid_datasets.append(valid_ds)
-            if test_ds:
-                test_datasets.append(test_ds)
-
-        train_n, valid_n, test_n = map(sum, zip(*datasets_train_valid_test_num_samples))
-
-        # Blend.
-        blending_train_dataset = None
-        if train_datasets:
-            blending_train_dataset = BlendableDataset(train_datasets, weights, train_n)
-        blending_valid_dataset = None
-        if valid_datasets:
-            blending_valid_dataset = BlendableDataset(valid_datasets, weights, valid_n)
-        blending_test_dataset = None
-        if test_datasets:
-            blending_test_dataset = BlendableDataset(test_datasets, weights, test_n)
-
-        return (blending_train_dataset, blending_valid_dataset, blending_test_dataset)
+    # if isinstance(data_prefix, DictConfig):
+    #     assert (
+    #         data_prefix.get('train') is not None
+    #         and data_prefix.get('test') is not None
+    #         and data_prefix.get('validation') is not None
+    #     ), f"Data prefix dictionary should have train, test and validation keys.  data_prefix currently has only {data_prefix.keys()}"
+    #     if cfg.data.splits_string is not None:
+    #         logging.warning(cfg.data.splits_string + " ignored since data prefix is of type dictionary.")
+    #     train_ds = build_dataset(
+    #         cfg,
+    #         trainer,
+    #         data_prefix["train"],
+    #         data_impl,
+    #         int(train_valid_test_num_samples[0]),
+    #         seq_length,
+    #         seed,
+    #         skip_warmup,
+    #         tokenizer,
+    #         "train",
+    #     )
+    #     validation_ds = build_dataset(
+    #         cfg,
+    #         trainer,
+    #         data_prefix["validation"],
+    #         data_impl,
+    #         int(train_valid_test_num_samples[1]),
+    #         seq_length,
+    #         seed,
+    #         skip_warmup,
+    #         tokenizer,
+    #         "valid",
+    #     )
+    #     test_ds = build_dataset(
+    #         cfg,
+    #         trainer,
+    #         data_prefix["test"],
+    #         data_impl,
+    #         int(train_valid_test_num_samples[2]),
+    #         seq_length,
+    #         seed,
+    #         skip_warmup,
+    #         tokenizer,
+    #         "test",
+    #     )
+    #     return train_ds, validation_ds, test_ds
+    #
+    # else:
+    #     # Single dataset.
+    #     if len(data_prefix) == 1:
+    #         return _build_train_valid_test_datasets(
+    #             cfg,
+    #             trainer,
+    #             data_prefix[0],
+    #             data_impl,
+    #             splits_string,
+    #             train_valid_test_num_samples,
+    #             seq_length,
+    #             seed,
+    #             skip_warmup,
+    #             tokenizer,
+    #         )
+    #
+    #     # Blending dataset.
+    #     # Parse the values.
+    #     output = get_datasets_weights_and_num_samples(data_prefix, train_valid_test_num_samples)
+    #     prefixes, weights, datasets_train_valid_test_num_samples = output
+    #
+    #     # Build individual datasets.
+    #     train_datasets = []
+    #     valid_datasets = []
+    #     test_datasets = []
+    #     for i in range(len(prefixes)):
+    #         train_ds, valid_ds, test_ds = _build_train_valid_test_datasets(
+    #             cfg,
+    #             trainer,
+    #             prefixes[i],
+    #             data_impl,
+    #             splits_string,
+    #             datasets_train_valid_test_num_samples[i],
+    #             seq_length,
+    #             seed,
+    #             skip_warmup,
+    #             tokenizer,
+    #         )
+    #         if train_ds:
+    #             train_datasets.append(train_ds)
+    #         if valid_ds:
+    #             valid_datasets.append(valid_ds)
+    #         if test_ds:
+    #             test_datasets.append(test_ds)
+    #
+    #     train_n, valid_n, test_n = map(sum, zip(*datasets_train_valid_test_num_samples))
+    #
+    #     # Blend.
+    #     blending_train_dataset = None
+    #     if train_datasets:
+    #         blending_train_dataset = BlendableDataset(train_datasets, weights, train_n)
+    #     blending_valid_dataset = None
+    #     if valid_datasets:
+    #         blending_valid_dataset = BlendableDataset(valid_datasets, weights, valid_n)
+    #     blending_test_dataset = None
+    #     if test_datasets:
+    #         blending_test_dataset = BlendableDataset(test_datasets, weights, test_n)
+    #
+    #     return (blending_train_dataset, blending_valid_dataset, blending_test_dataset)
 
 
 def _build_train_valid_test_datasets(

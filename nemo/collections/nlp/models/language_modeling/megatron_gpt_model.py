@@ -659,61 +659,66 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
             ] = 1  # This is to make sure we only have one epoch on every validation iteration
 
         # TODO HELEN: FUCKING REPLACE THIS
-        self._train_ds, self._validation_ds, self._test_ds = build_train_valid_test_datasets(
-            cfg=self.cfg,
-            trainer=self.trainer,
-            data_prefix=self.cfg.data.data_prefix,
-            data_impl=self.cfg.data.data_impl,
-            splits_string=self.cfg.data.splits_string,
-            train_valid_test_num_samples=train_valid_test_num_samples,
-            seq_length=self.cfg.data.seq_length,
-            seed=self.cfg.seed,
-            skip_warmup=self.cfg.data.get('skip_warmup', True),
-            tokenizer=self.tokenizer,
-        )
-
-        # from seqio import dataset_providers
-        # TaskRegistry = dataset_providers.TaskRegistry
-        # import lm_feature_converter
-        #
-        # ds = dataset_providers.get_dataset(
-        #     mixture_or_task_name="pile",
-        #     task_feature_lengths={
-        #         # "inputs": 2048,
-        #         "targets": 2048},  # TODO this is a seqio quirk
-        #     dataset_split="train",
-        #     # sequence_length=None,
-        #     #                   split="train",
-        #     shuffle=False, use_cached=False,
-        #     # feature_converter=seqio.LMFeatureConverter(pack=True)
-        #     # feature_converter=seqio.DecoderFeatureConverter(pack=True)  # TODO HELEN: PACKIGN DOESNT SEEM TO WORK PROPERLY
-        #     feature_converter=lm_feature_converter.LMFeatureConverter(pack=True)
+        # self._train_ds, self._validation_ds, self._test_ds = build_train_valid_test_datasets(
+        #     cfg=self.cfg,
+        #     trainer=self.trainer,
+        #     data_prefix=self.cfg.data.data_prefix,
+        #     data_impl=self.cfg.data.data_impl,
+        #     splits_string=self.cfg.data.splits_string,
+        #     train_valid_test_num_samples=train_valid_test_num_samples,
+        #     seq_length=self.cfg.data.seq_length,
+        #     seed=self.cfg.seed,
+        #     skip_warmup=self.cfg.data.get('skip_warmup', True),
+        #     tokenizer=self.tokenizer,
         # )
         #
+        # self._train_dl = self._train_ds
+        # self._validation_dl = self._train_ds
+        # self._train_dl = self._test_ds
+
+        from seqio import dataset_providers
+        TaskRegistry = dataset_providers.TaskRegistry
+        import lm_feature_converter
+
+        ds = dataset_providers.get_dataset(
+            mixture_or_task_name="pile",
+            task_feature_lengths={
+                # "inputs": 2048,
+                "targets": 2048},  # TODO this is a seqio quirk
+            dataset_split="train",
+            # sequence_length=None,
+            #                   split="train",
+            shuffle=False, use_cached=False,
+            # feature_converter=seqio.LMFeatureConverter(pack=True)
+            # feature_converter=seqio.DecoderFeatureConverter(pack=True)  # TODO HELEN: PACKIGN DOESNT SEEM TO WORK PROPERLY
+            feature_converter=lm_feature_converter.LMFeatureConverter(pack=True)
+        )
+
         # data = iter(ds)
-        #
-        # self._train_ds = data
-        # self._validation_ds = data
-        # self._test_ds = data
+        data = ds.as_numpy_iterator()
 
-        print(dir(self.tokenizer))
-        # print(self.tokenizer.ids_to_text([262,  6292, 19444, 290]))
+        self._train_ds = data
+        self._validation_ds = data
+        self._test_ds = data
+
+        # print(dir(self.tokenizer))
+        # # print(self.tokenizer.ids_to_text([262,  6292, 19444, 290]))
         print("THIS IS WHAT TRAINING DATA LOOKS LIKE")
-        # print(self._train_ds)
+        print(self._train_ds)
         # print(len(self._train_ds))
-        print(self._train_ds[0].keys())  # dict_keys(['tokens', 'labels', 'attention_mask', 'loss_mask', 'position_ids'])
-        print(self._train_ds[0])
-        for k in list(self._train_ds[0].keys()):
-            print('\n\n')
-            print(f"key: {k} | shape: {self._train_ds[0][k].shape})")
-            print(self._train_ds[0][k])
-
-        print("a bunch of examples")
-        for i in range(10):
-            print("\n\n====================================")
-            tokens = self._train_ds[i]
-            print(tokens)
-            print(self.tokenizer.ids_to_text(tokens['tokens']))
+        # print(self._train_ds[0].keys())  # dict_keys(['tokens', 'labels', 'attention_mask', 'loss_mask', 'position_ids'])
+        # print(self._train_ds[0])
+        # for k in list(self._train_ds[0].keys()):
+        #     print('\n\n')
+        #     print(f"key: {k} | shape: {self._train_ds[0][k].shape})")
+        #     print(self._train_ds[0][k])
+        #
+        # print("a bunch of examples")
+        # for i in range(10):
+        #     print("\n\n====================================")
+        #     tokens = self._train_ds[i]
+        #     print(tokens)
+        #     print(self.tokenizer.ids_to_text(tokens['tokens']))
         """
         {'tokens': tensor([   13,  1081,   257,  ...,   262,  6292, 19444]), 'labels': tensor([ 1081,   257,  1152,  ...,  6292, 19444,   290]), 'attention_mask': tensor([[[False,  True,  True,  ...,  True,  True,  True],
          [False, False,  True,  ...,  True,  True,  True],
@@ -723,15 +728,15 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
          [False, False, False,  ..., False, False,  True],
          [False, False, False,  ..., False, False, False]]]), 'loss_mask': tensor([1., 1., 1.,  ..., 1., 1., 1.]), 'position_ids': tensor([   0,    1,    2,  ..., 2045, 2046, 2047])}
         """
-        exit()
+        # exit()
 
-        if self._train_ds is not None:
-            logging.info(f'Length of train dataset: {len(self._train_ds)}')
-        if self._validation_ds is not None:
-            logging.info(f'Length of val dataset: {len(self._validation_ds)}')
-        if self._test_ds is not None:
-            logging.info(f'Length of test dataset: {len(self._test_ds)}')
-        logging.info(f'Finished building GPT datasets.')
+        # if self._train_ds is not None:
+        #     logging.info(f'Length of train dataset: {len(self._train_ds)}')
+        # if self._validation_ds is not None:
+        #     logging.info(f'Length of val dataset: {len(self._validation_ds)}')
+        # if self._test_ds is not None:
+        #     logging.info(f'Length of test dataset: {len(self._test_ds)}')
+        # logging.info(f'Finished building GPT datasets.')
 
         return self._train_ds, self._validation_ds, self._test_ds
 
@@ -824,40 +829,47 @@ class MegatronGPTModel(MegatronBaseModel, TextGeneration):
             self.setup_transformer_engine_tp_groups()
 
     def setup_training_data(self, cfg):
-        if hasattr(self, '_train_ds'):
-            consumed_samples = self.compute_consumed_samples(0)
-            logging.info(
-                f'Setting up train dataloader with len(len(self._train_ds)): {len(self._train_ds)} and consumed samples: {consumed_samples}'
-            )
-            self._train_dl = self.build_pretraining_data_loader(self._train_ds, consumed_samples)
+        pass
+
+        # if hasattr(self, '_train_ds'):
+        #     consumed_samples = self.compute_consumed_samples(0)
+        #     logging.info(
+        #         f'Setting up train dataloader with len(len(self._train_ds)): {len(self._train_ds)} and consumed samples: {consumed_samples}'
+        #     )
+        #     self._train_dl = self.build_pretraining_data_loader(self._train_ds, consumed_samples)
+        #     self._train_dl = self._train_ds #HELEN
 
     def setup_validation_data(self, cfg):
-        if hasattr(self, '_validation_ds'):
-            consumed_samples = 0
-            logging.info(
-                f'Setting up validation dataloader with len(len(self._validation_ds)): {len(self._validation_ds)} and consumed samples: {consumed_samples}'
-            )
+        pass
 
-            drop_last = True
-            if not self.cfg.data.get('validation_drop_last', True):
-                logging.info(f'Drop last in validation dataset is set to False')
-                drop_last = False
-            pad_samples_to_global_batch_size = False
-            if self.cfg.data.get('pad_samples_to_global_batch_size', False):
-                logging.info('pad_samples_to_global_batch_size set to True')
-                pad_samples_to_global_batch_size = True
-
-            self._validation_dl = self.build_pretraining_data_loader(
-                self._validation_ds, consumed_samples, "validation", drop_last, pad_samples_to_global_batch_size
-            )
+        # if hasattr(self, '_validation_ds'):
+        #     consumed_samples = 0
+        #     logging.info(
+        #         f'Setting up validation dataloader with len(len(self._validation_ds)): {len(self._validation_ds)} and consumed samples: {consumed_samples}'
+        #     )
+        #
+        #     drop_last = True
+        #     if not self.cfg.data.get('validation_drop_last', True):
+        #         logging.info(f'Drop last in validation dataset is set to False')
+        #         drop_last = False
+        #     pad_samples_to_global_batch_size = False
+        #     if self.cfg.data.get('pad_samples_to_global_batch_size', False):
+        #         logging.info('pad_samples_to_global_batch_size set to True')
+        #         pad_samples_to_global_batch_size = True
+        #
+        #     self._validation_dl = self.build_pretraining_data_loader(
+        #         self._validation_ds, consumed_samples, "validation", drop_last, pad_samples_to_global_batch_size
+        #     )
 
     def setup_test_data(self, cfg):
-        if hasattr(self, '_test_ds'):
-            consumed_samples = 0
-            logging.info(
-                f'Setting up test dataloader with len(len(self._test_ds)): {len(self._test_ds)} and consumed samples: {consumed_samples}'
-            )
-            self._test_dl = self.build_pretraining_data_loader(self._test_ds, consumed_samples)
+        pass
+
+        # if hasattr(self, '_test_ds'):
+        #     consumed_samples = 0
+        #     logging.info(
+        #         f'Setting up test dataloader with len(len(self._test_ds)): {len(self._test_ds)} and consumed samples: {consumed_samples}'
+        #     )
+        #     self._test_dl = self.build_pretraining_data_loader(self._test_ds, consumed_samples)
 
     def generate(
         self,
