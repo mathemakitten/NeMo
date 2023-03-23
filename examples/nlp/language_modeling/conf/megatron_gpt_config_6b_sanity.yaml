@@ -1,4 +1,4 @@
-name: megatron_gpt_6b
+name: megatron_gpt_6b_v0
 restore_from_path: null # used when starting from a .nemo file
 
 trainer:
@@ -22,7 +22,7 @@ trainer:
 
 exp_manager:
   explicit_log_dir: null
-  exp_dir: '/fsx/helen/nemo/nemo_experiments/megatron_gpt_6b'
+  exp_dir: '/fsx/helen/nemo/nemo_experiments/megatron_gpt_6b_v0'
   name: megatron_gpt_6b
   create_wandb_logger: False
   wandb_logger_kwargs:
